@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Txt Sorter </title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0d0b12;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 32px 16px;
+    overflow: hidden;
+    position: relative;
+}
+  .container {
+    width: 100%;
+    max-width: 900px;
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 24px;
+    letter-spacing: 0.5px;
+  }
+  .input-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  .input-row label {
+    font-size: 14px;
+    color: #aaa;
+    white-space: nowrap;
+  }
+  input[type="text"] {
+    flex: 1;
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 14px;
+    padding: 8px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus { border-color: #555; }
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  button {
+    padding: 8px 20px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  button:active { transform: scale(0.97); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-green  { background: #2e7d32; color: #fff; }
+  .btn-red    { background: #b71c1c; color: #fff; }
+  .btn-blue   { background: #1565c0; color: #fff; }
+  .btn-orange { background: #e65100; color: #fff; }
+  textarea {
+    width: 100%;
+    height: 380px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    color: #d4d4d4;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 13px;
+    padding: 12px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  textarea:focus { border-color: #444; }
+  .status-bar {
+    margin-top: 10px;
+    font-size: 13px;
+    min-height: 20px;
+    padding: 4px 2px;
+  }
+  .status-green  { color: #4caf50; }
+  .status-red    { color: #ef5350; }
+  .status-yellow { color: #ffa726; }
+  .stats {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #666;
+  }
+  .stats span { color: #888; }
+  .stats b { color: #bbb; }
+
+  .layout{
+    width:100%;
+    max-width:1100px;
+    display:flex;
+    gap:35px;          
+    align-items:flex-start;
+}
+
+.sidebar{
+    width:140px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-left:-80px;
+}
+
+.mini-card{
+    background:linear-gradient(
+        135deg,
+        #2b163f,
+        #1a1028
+    );
+
+    border:1px solid rgba(140,100,190,0.25);
+    border-radius:8px;
+
+    padding:7px 8px;
+
+    box-shadow:
+        0 4px 12px rgba(0,0,0,0.45),
+        inset 0 1px 0 rgba(255,255,255,0.03);
+
+    transition:all 0.2s ease;
+}
+
+
+@keyframes copperShine{
+    from{
+        left:-60%;
+    }
+    to{
+        left:160%;
+    }
+}
+
+.mini-card:hover{
+    transform:translateX(3px);
+    border-color:rgba(200,150,255,0.5);
+
+    box-shadow:
+        0 6px 18px rgba(0,0,0,0.45),
+        0 0 10px rgba(170,100,255,0.25);
+}
+
+.mini-card h4{
+    font-size:11px;
+    color:#f5ecff;
+    font-weight:600;
+    margin-bottom:3px;
+    letter-spacing:0.3px;
+}
+
+.mini-card.copper{
+    background:linear-gradient(
+        135deg,
+        #5a3323,
+        #3a2118
+    );
+
+    border:1px solid rgba(212,150,110,0.30);
+
+    box-shadow:
+        0 4px 12px rgba(0,0,0,0.45),
+        0 0 8px rgba(190,120,80,0.12);
+
+    animation:copperGlow 3s ease-in-out infinite;
+}
+
+.mini-card p{
+    font-size:9px;
+    color:#d4c0eb;
+    line-height:1.35;
+}
+
+body::before,
+body::after{
+    content:"";
+    position:fixed;
+    inset:-25%;
+    z-index:-2;
+    filter:blur(90px);
+    opacity:0.35;
+    animation:auroraMove 20s ease-in-out infinite alternate;
+}
+
+body::before{
+    background:
+        radial-gradient(circle at 30% 30%,
+        rgba(124,58,237,0.45),
+        transparent 40%),
+
+        radial-gradient(circle at 70% 60%,
+        rgba(192,132,252,0.30),
+        transparent 45%);
+}
+
+body::after{
+    background:
+        radial-gradient(circle at 80% 20%,
+        rgba(184,115,51,0.22),
+        transparent 35%),
+
+        radial-gradient(circle at 20% 80%,
+        rgba(88,28,135,0.35),
+        transparent 40%);
+
+    animation-duration:28s;
+}
+
+@keyframes auroraMove{
+    0%{
+        transform:translate(-3%, -2%) scale(1);
+    }
+
+    50%{
+        transform:translate(4%, 3%) scale(1.1);
+    }
+
+    100%{
+        transform:translate(-2%, 5%) scale(0.95);
+    }
+}
+.layout::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    pointer-events:none;
+
+    background-image:
+        radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
+
+    background-size:70px 70px;
+
+    opacity:0.18;
+}
+
+.bottom-right-box{
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 10px 14px;
+
+    background: rgba(10, 8, 20, 0.55);
+    border: 1px solid rgba(190, 120, 255, 0.25);
+    border-radius: 12px;
+
+    backdrop-filter: blur(14px);
+
+    color: #e9d5ff;
+    font-size: 12px;
+    text-decoration: none;
+
+    box-shadow:
+        0 0 20px rgba(140, 90, 255, 0.15),
+        0 10px 30px rgba(0,0,0,0.45);
+
+    overflow: hidden;
+    transition: all 0.25s ease;
+
+    animation: floatBox 4s ease-in-out infinite;
+}
+
+/* neon glow layer */
+.bottom-right-box::before{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    background: linear-gradient(
+        90deg,
+        rgba(168,85,247,0.2),
+        rgba(236,72,153,0.15),
+        rgba(168,85,247,0.2)
+    );
+    filter: blur(10px);
+    opacity: 0.6;
+    z-index: 0;
+}
+
+/* içerik üstte kalsın */
+.bottom-right-box *{
+    position: relative;
+    z-index: 1;
+}
+
+.bottom-right-box svg{
+    transition: transform 0.4s ease;
+}
+
+/* hover efekt */
+.bottom-right-box:hover{
+    transform: translateY(-3px) scale(1.03);
+    border-color: rgba(200,150,255,0.6);
+    box-shadow:
+        0 0 25px rgba(170,100,255,0.35),
+        0 15px 40px rgba(0,0,0,0.55);
+}
+
+.bottom-right-box:hover svg{
+    transform: rotate(10deg) scale(1.1);
+}
+
+/* text gradient */
+.bottom-right-box span{
+    color: #000;
+    -webkit-text-fill-color: #000;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.35);
+    font-weight: 700;
+}
+
+/* floating animation */
+@keyframes floatBox{
+    0%   { transform: translateY(0px); }
+    50%  { transform: translateY(-6px); }
+    100% { transform: translateY(0px); }
+}
+
+.bottom-right-box.instagram-style{
+    background: linear-gradient(
+        135deg,
+        #833ab4,
+        #c13584,
+        #fd1d1d,
+        #fcb045
+    );
+
+    border: 1px solid rgba(255,255,255,0.25);
+
+    box-shadow:
+        0 0 25px rgba(225,48,108,0.25),
+        0 10px 30px rgba(0,0,0,0.45);
+}
+
+
+
+.mini-card.copper::after{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    border-radius:8px;
+
+    background: radial-gradient(
+        circle,
+        rgba(255,180,100,0.35),
+        transparent 70%
+    );
+
+    filter: blur(12px);
+    z-index:-1;
+
+    animation: pulseCopper 2.5s ease-in-out infinite;
+}
+
+@keyframes pulseCopper{
+    0%,100%{
+        opacity:.3;
+        transform:scale(1);
+    }
+
+    50%{
+        opacity:.9;
+        transform:scale(1.08);
+    }
+}
+
+@keyframes copperGlow{
+    0%,100%{
+        box-shadow:
+            0 4px 12px rgba(0,0,0,0.45),
+            0 0 8px rgba(190,120,80,0.12);
+    }
+
+    50%{
+        box-shadow:
+            0 4px 12px rgba(0,0,0,0.45),
+            0 0 16px rgba(255,170,90,0.35),
+            0 0 24px rgba(255,170,90,0.15);
+    }
+}
+
+.aurora-toggle{
+    position:fixed;
+    top:18px;
+    right:18px;
+    z-index:9999;
+
+    padding:8px 14px;
+
+    background:rgba(20,20,30,.8);
+    color:#fff;
+
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:10px;
+
+    cursor:pointer;
+    backdrop-filter:blur(10px);
+
+    transition:.2s;
+}
+
+.aurora-toggle:hover{
+    background:rgba(40,40,60,.9);
+}
+
+/* Aurora kapalı */
+body.aurora-off::before,
+body.aurora-off::after{
+  opacity:0 !important;
+    animation:none !important;
+}
+
+body.aurora-off .layout::before{
+    opacity:0 !important;
+}
+
+</style>
+</head>
+<body>
+  
+  <button id="toggleAurora" class="aurora-toggle">
+    ✨
+</button>
+
+    <div class="layout">
+    
+      <div class="sidebar">
+
+        <div class="mini-card">
+          <h4>Txt 1 - (..36)</h4>
+          <p>---</p>
+        </div>
+      
+        <div class="mini-card copper">
+          <h4>Txt 2 - (..14)</h4>
+          <p>---</p>
+        </div>
+      
+        <div class="mini-card">
+          <h4>Txt 3 - (..36)</h4>
+          <p>---</p>
+        </div>
+      
+        <div class="mini-card">
+          <h4>Txt 4 - (..36)</h4>
+          <p>---</p>
+        </div>
+      
+        <div class="mini-card copper">
+          <h4>Txt 5 - (..14)</h4>
+          <p>---</p>
+        </div>
+      
+        <div class="mini-card">
+          <h4>Txt 6 - (..36)</h4>
+          <p>---</p>
+        </div>
+      
+        <div class="mini-card">
+          <h4>Txt 7 - (..14)</h4>
+          <p>---</p>
+        </div>
+      
+        <div class="mini-card copper">
+          <h4>Txt 8 - (..14)</h4>
+          <p>---</p>
+        </div>
+      
+      </div>
+
+<div class="container">
+  <h1>Txt Sorter</h1>
+
+  <div class="input-row">
+    <label>File:</label>
+    <input type="text" id="filePath" value="(1-8) - (..).txt" placeholder="(1-8) - (..).txt">
+    <label style="margin-left:16px">URL Filter:</label>
+    <input type="text" id="urlFilter" placeholder="exm: facebook.com">
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-green"  id="btnLoad">⬆ Upload &amp; Filter</button>
+    <button class="btn-blue"   id="btnClean" disabled>✂ URL clear</button>
+    <button class="btn-red"    id="btnClear">✕ Clear</button>
+    <button class="btn-orange" id="btnExport" disabled>⬇ Download</button>
+  </div>
+
+  <textarea id="output" readonly placeholder="Filtered results will appear here......"></textarea>
+
+  <div id="status" class="status-bar"></div>
+  <div class="stats">
+    <span>Total lines: <b id="statTotal">0</b></span>
+    <span>Matches: <b id="statMatch">0</b></span>
+    <span>Clean pairs: <b id="statPairs">0</b></span>
+  </div>
+
+  <a class="bottom-right-box instagram-style"
+  href="https://www.instagram.com/shawismq/"
+  target="_blank">
+
+ <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+   <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5z"
+     stroke="#d8b4fe" stroke-width="1.5"/>
+   <path d="M12 8.5A3.5 3.5 0 1 0 12 15.5A3.5 3.5 0 0 0 12 8.5Z"
+     stroke="#d8b4fe" stroke-width="1.5"/>
+   <path d="M17.5 6.5h.01"
+     stroke="#d8b4fe" stroke-width="2" stroke-linecap="round"/>
+ </svg>
+
+ <span>Contact</span>
+
+</a>
+  
+</div>
+
+<script>
+
+const output   = document.getElementById('output');
+const status   = document.getElementById('status');
+const btnLoad  = document.getElementById('btnLoad');
+const btnClean = document.getElementById('btnClean');
+const btnClear = document.getElementById('btnClear');
+const btnExport= document.getElementById('btnExport');
+const statTotal= document.getElementById('statTotal');
+const statMatch= document.getElementById('statMatch');
+const statPairs= document.getElementById('statPairs');
+
+let rawLines = [];
+
+function setStatus(msg, type) {
+  status.textContent = msg;
+  status.className = 'status-bar status-' + type;
+}
+
+async function loadFile() {
+  const path = document.getElementById('filePath').value.trim() || '(1-8) - (..).txt';
+  const keyword = document.getElementById('urlFilter').value.trim();
+
+  setStatus('Dosya yükleniyor...', 'yellow');
+
+  try {
+    const resp = await fetch(path);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status} – File not found.: ${path}`);
+    const text = await resp.text();
+    const lines = text.split('\n').filter(l => l.trim() !== '');
+
+    statTotal.textContent = lines.length;
+
+    let filtered = lines;
+    if (keyword) {
+      filtered = lines.filter(l => l.includes(keyword));
+    }
+
+    rawLines = filtered;
+    statMatch.textContent = filtered.length;
+    statPairs.textContent = '—';
+
+    output.value = filtered.join('\n');
+    btnClean.disabled  = filtered.length === 0;
+    btnExport.disabled = filtered.length === 0;
+
+    if (filtered.length === 0) {
+      setStatus(`"${keyword}" No matching lines found.`, 'red');
+    } else {
+      setStatus(`${filtered.length} Lines loaded.` + (keyword ? ` (Filter: "${keyword}")` : ''), 'green');
+    }
+  } catch(e) {
+    setStatus('Hata: ' + e.message, 'red');
+  }
+}
+
+function cleanUrls() {
+  const content = output.value;
+
+  const urlRx = /https?:\/\/[^\s|:]+/g;
+  const cleaned = content.replace(urlRx, '');
+
+  const patterns = [
+    /\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}\b:[^\s\n]{6,}/g,
+    /\b\d{10,15}:[^\s\n]{6,}/g,
+    /\b\d{11}:[^\s\n]{6,}/g
+  ];
+
+  const pairs = new Set();
+  for (const rx of patterns) {
+    const found = cleaned.match(rx) || [];
+    found.forEach(p => pairs.add(p.trim()));
+  }
+
+  const result = [...pairs];
+  output.value = result.join('\n');
+  statPairs.textContent = result.length;
+  btnExport.disabled = result.length === 0;
+  setStatus(`URL'ler temizlendi. ${result.length} benzersiz çift kaldı.`, 'green');
+}
+
+function clearAll() {
+  output.value = '';
+  rawLines = [];
+  statTotal.textContent = '0';
+  statMatch.textContent = '0';
+  statPairs.textContent = '0';
+  btnClean.disabled  = true;
+  btnExport.disabled = true;
+  setStatus('İçerik temizlendi.', 'green');
+}
+
+function exportFile() {
+  const content = output.value;
+  if (!content.trim()) { setStatus('No content to export.', 'red'); return; }
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'output_' + Date.now() + '.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+  setStatus('File downloaded.', 'green');
+}
+
+btnLoad.addEventListener('click', loadFile);
+btnClean.addEventListener('click', cleanUrls);
+btnClear.addEventListener('click', clearAll);
+btnExport.addEventListener('click', exportFile);
+
+document.getElementById('urlFilter').addEventListener('keydown', e => {
+  if (e.key === 'Enter') loadFile();
+});
+
+const auroraBtn = document.getElementById('toggleAurora');
+
+auroraBtn.addEventListener('click', () => {
+    document.body.classList.toggle('aurora-off');
+
+    const disabled =
+        document.body.classList.contains('aurora-off');
+
+    auroraBtn.textContent =
+    auroraBtn.textContent =
+    disabled
+    ? '🌑'
+    : '✨';
+  });
+</script>
+</body>
+</html>
